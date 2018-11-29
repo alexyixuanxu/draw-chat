@@ -1,0 +1,23 @@
+{
+  "name": "draw-chat",
+  "version": "1.0.0",
+  "description": "A chat where we communicate by drawing.",
+  "main": "chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexyixuanxu/draw-chat.git"
+  },
+  "author": "Alex Yixuan Xu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexyixuanxu/draw-chat/issues"
+  },
+  "homepage": "https://github.com/alexyixuanxu/draw-chat#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  }
+}

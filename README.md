@@ -1,4 +1,4 @@
-# Assignment 8: socket.io App
+# Draw Chat App
 This is a web app where users can draw on a canvas and send it and communicate with other users simutaneously.
 
 ## Set Up the App

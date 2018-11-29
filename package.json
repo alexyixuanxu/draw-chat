@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alexyixuanxu/draw-chat.git"
+    "url": "git+https://github.com/alexyixuanxu/draw-n-chat.git"
   },
   "author": "Alex Yixuan Xu",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/alexyixuanxu/draw-chat/issues"
+    "url": "https://github.com/alexyixuanxu/draw-n-chat/issues"
   },
-  "homepage": "https://github.com/alexyixuanxu/draw-chat#readme",
+  "homepage": "https://github.com/alexyixuanxu/draw-n-chat#readme",
   "dependencies": {
     "express": "^4.16.4",
     "socket.io": "^2.2.0"

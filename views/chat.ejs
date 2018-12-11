@@ -45,7 +45,7 @@
 		.chat_row{
 			display: block;
 		}
-		.avatars{
+		.other_avatars{
 			width: 50px;
 			height: 50px;
 			position: relative;
@@ -53,18 +53,40 @@
 			left: 10px;
 			top: 10px;
 		}
-		.usernames{
+		.other_usernames{
 			position: relative;
 			left: 15px;
 			top: 0;
 			display: inline-block;
 		}
-		.msgs{
+		.other_msgs{
 			width: 250px;
 			height: 250px;		
 			display: block;	
 			position: relative;;
 			left: 10px;
+			top: 0px;
+		}
+		.my_avatars{
+			width: 50px;
+			height: 50px;
+			position: relative;
+			display: inline-block;
+			left: 420px;
+			top: 10px;
+		}
+		.my_usernames{
+			position: relative;
+			left: 400px;
+			top: 0;
+			display: inline-block;
+		}
+		.my_msgs{
+			width: 250px;
+			height: 250px;		
+			display: block;	
+			position: relative;;
+			left: 300px;
 			top: 0px;
 		}
 		#pen{
@@ -231,24 +253,47 @@
 
 	// socket
 	socket.on('send canvas', function(data) {
-		let div = document.createElement('div');//.append("<div class='chat_row'></div>");
-		div.className = "chat_row";
-		$("#chat").append(div);
+		if (data.userid === userid){
+			let div = document.createElement('div');
+			div.className = "chat_row";
+			$("#chat").append(div);
 
-		let avatar = document.createElement('img');
-		avatar.className = "avatars";
-		avatar.src = data.avatar;
-		div.append(avatar);
+			let username = document.createElement('p');
+			username.className = "my_usernames";
+			username.appendChild(document.createTextNode(data.username));
+			div.append(username);
 
-		let username = document.createElement('p');
-		username.className = "usernames";
-		username.appendChild(document.createTextNode(data.username));
-		div.append(username);
+			let avatar = document.createElement('img');
+			avatar.className = "my_avatars";
+			avatar.src = data.avatar;
+			div.append(avatar);
 
-		let msg = document.createElement('img');
-		msg.className = "msgs"
-		msg.src = data.message;
-		div.append(msg);
+			let msg = document.createElement('img');
+			msg.className = "my_msgs"
+			msg.src = data.message;
+			div.append(msg);			
+		}
+		else{
+			let div = document.createElement('div');
+			div.className = "chat_row";
+			$("#chat").append(div);
+
+			let avatar = document.createElement('img');
+			avatar.className = "other_avatars";
+			avatar.src = data.avatar;
+			div.append(avatar);
+
+			let username = document.createElement('p');
+			username.className = "other_usernames";
+			username.appendChild(document.createTextNode(data.username));
+			div.append(username);
+
+			let msg = document.createElement('img');
+			msg.className = "other_msgs"
+			msg.src = data.message;
+			div.append(msg);			
+		}
+
 	});	
 
 	// socket.emit('get chat', {chatData: null});

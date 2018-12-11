@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Draw N' Chat | Sign Up</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Poor+Story" rel="stylesheet">
+  <style type="text/css">
+    * {
+      background-color: gainsboro;
+      font-family: 'Poor Story', cursive;
+      font-size: 22px;
+    }
+    body{
+      width: 600px;
+      margin: 0 auto;
+    }
+    h1{
+      margin: 5px auto;
+      text-align: center;
+      font-size: 42px;
+    }
+    h2{
+      margin: 0 auto;
+      text-align: center;
+      font-size: 42px;
+    }
+    form{
+      margin: 5px auto;
+    }
+    input{
+      margin: 5px auto;
+      font-size: 18px;
+    }
+    p.indicator{
+      font-size: 18px;
+    }
+    #avatar_sketch{
+      width: 550px;
+      height: 550px;
+      text-align: center;
+      margin: auto;
+    }
+    canvas{
+      position: relative;
+      top:25px;
+      margin: auto;
+    }
+    img{
+      margin: 5px auto;
+      width: 500px;
+      height: 500px;
+    }
+    p{
+      margin: 2px 0;
+    }
+    button {
+      background-color: black; 
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 10px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 22px;
+    }
+    button:hover {
+      background-color: dimgrey;
+      color: white;
+    }
+    #submit{
+      background-color: black; 
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 10px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 22px;
+    }
+    #submit:hover {
+      background-color: dimgrey;
+      color: white;
+    }
+  </style>
+  <script type="text/javascript">
+  const socket = io();
+  let avatarDrawn = false;
+
+  // drawing stuff
+  let penTypeRadio;
+  let penAlphaSlider;
+  let penSizeSlider;
+  let penRSlider;
+  let penGSlider;
+  let penBSlider;
+
+  let penType = 'Line';// line, square, spray
+  let penSize = 10;
+  let penAlpha = 255;
+  let penR = 0;
+  let penG = 0;
+  let penB = 0;
+
+  generateName(); // generate an initial name
+
+  $(function () {
+    $("#generate").click(function(){
+      generateName();
+    });
+    // re-enable text field when click submit
+    $("#submit").click(function(){
+      $("input[name='username']").prop("disabled", false);
+    });
+    // button click send canvas when canvas is not empty
+    $("#send_avatar").click(function(){
+      if (avatarDrawn){
+        sendAvatar();     
+      }
+    }); 
+    $("#send_avatar").hide();
+    $("#avatar_drawn").hide();
+  });
+
+  // generating another username with rita
+  function generateName(){
+    socket.emit('generate name', {newName: null});
+  }
+
+  socket.on('generate name', function(data){
+    let newName = data.newName;
+    console.log(newName);
+    $("input[name='username']").val(newName);
+  });
+
+  // p5 canvas stuff
+  function setup(){
+    let canvas = createCanvas(500, 500);
+    canvas.parent('avatar_sketch');
+    canvas.mousePressed(userHasDrawn); // has to draw something on canvas!
+    background(255); 
+
+    rectMode(CENTER);
+
+    penTypeRadio = createRadio();
+    penTypeRadio.option('Line');
+    penTypeRadio.option('Square');
+    penTypeRadio.option('Spray');
+    penTypeRadio.parent('pen_type');
+
+    penSizeSlider = createSlider(10, 200, 10, 5);
+    penSizeSlider.parent('pen_size');
+
+    penAlphaSlider = createSlider(5, 255, 255, 5);
+    penAlphaSlider.parent('pen_alpha');
+
+    penRSlider = createSlider(0, 255, 0, 0.1);
+    penGSlider = createSlider(0, 255, 0, 0.1);
+    penBSlider = createSlider(0, 255, 0, 0.1);
+    penRSlider.parent('pen_color');
+    penGSlider.parent('pen_color');
+    penBSlider.parent('pen_color');
+
+  }
+
+  function draw(){
+    penType = penTypeRadio.value();
+    penSize = penSizeSlider.value();
+    penAlpha = penAlphaSlider.value();
+    penR = penRSlider.value();
+    penG = penGSlider.value();
+    penB = penBSlider.value();
+    docAlpha = map(penAlpha, 0, 255, 0, 1)
+    document.getElementById("avatar_sketch").style.backgroundColor = "rgba("+penR+", " + penG +", "+penB+", "+docAlpha+")";
+    if (mouseIsPressed){
+      if (penType==='Line'){
+        noFill();
+        stroke(penR, penG, penB, penAlpha);
+        strokeWeight(penSize)
+        line(pmouseX, pmouseY, mouseX, mouseY)
+      }
+      else if (penType==='Square'){
+        fill(penR, penG, penB, penAlpha);
+        noStroke();
+        rect(mouseX, mouseY, penSize, penSize);
+      }
+      else if (penType==='Spray'){
+        fill(penR, penG, penB, penAlpha);
+        noStroke();
+        for(let i = 0;i<300;i++){
+          let x1 = random(-penSize, penSize);
+          let x2 = random(-penSize, penSize);
+          let x3 = random(-penSize, penSize);
+          x = (x1 + x2 + x3) / 3; // gaussian 
+          let y1 = random(-penSize, penSize);
+          let y2 = random(-penSize, penSize);
+          let y3 = random(-penSize, penSize);
+          y = (y1 + y2 + y3) / 3; // gaussian
+
+          fill(penR, penG, penB, penAlpha);
+          ellipse(mouseX+x, mouseY+y, 1, 1)
+        }
+      }
+    }
+  }
+
+  function userHasDrawn(){
+    avatarDrawn = true;
+    $("#send_avatar").show();
+  }
+
+  function sendAvatar(){
+    let avatarCanvas = $('canvas')[0];
+    let avatar = avatarCanvas.toDataURL('image/png'); // convert to an image src
+    let userid = <%= userid %>
+    console.log(userid);
+    console.log(avatar);
+    socket.emit('send avatar', {userid: userid, avatar: avatar});
+  }
+
+  socket.on('send avatar', function(data) {
+    // hide the canvas, pen, button
+    // show image
+    // display success text
+    $("#pen").hide();
+    $("#avatar_sketch").hide();
+    $("#send_avatar").hide();
+
+    let avatarImg = document.createElement('img');
+    avatarImg.src = data.avatar;
+    $("#avatar_image").append(avatarImg);
+    $("#avatar_drawn").show();
+
+  }); 
+  </script>
+</head>
+
+<body>
+  <!-- if haven't register yet, or register error, show the form -->
+  <% if (success === null){ %>
+    <h1>Sign Up for Draw N' Chat!</h1>
+  	<p>User names are randomly generated</p>
+  	<!-- press this button to change the username -->
+  	<button id="generate">Another one!</button>
+
+    <form action="/signup" method="post">
+      <p>Username</p>
+      <input type="text" name="username" disabled value=""><br>
+      <p>Password</p>
+      <input type="password" name="password" placeholder=" Your Password"><br>
+      <p>Confirm Password</p>
+      <input type="password" name="confirm_password" placeholder=" Your Password Again"><br>
+      <input type="submit" id="submit">
+    </form>
+    <br>
+
+    <!-- if error, display error message -->
+    <% if (error !== null){ %>
+    <p><%= error %></p>
+    <% } %> 
+
+    <p>Already signed up? Proceed to <a href="/">Log In</a>...</p>
+  <% } %>
+  <!-- if successfully register user, show avatar draw! -->
+  <% if (success !== null){ %>
+    <p>Awesome! Remember you username is: </p>
+    <h2 id="username"><%= username %></h2>
+    <p>now...</p>
+    <h1>Draw Your Avatar!</h1>
+
+    <!-- pen settings here -->
+    <div id="pen">
+      <div id="pen_type">
+        <p class="indicator">Pen Type</p>
+      </div>
+      <div id="pen_size">
+        <p class="indicator">Pen Size</p>
+      </div>
+      <div id="pen_alpha">
+        <p class="indicator">Alpha</p>
+      </div>
+      <div id="pen_color">
+        <p class="indicator">R, G, B</p>
+      </div>
+      <br>
+    </div>
+    <div id="avatar_sketch"></div>
+    <div id="avatar_image" width="500" height="500"></div>
+    <button id="send_avatar">Okay, I'm done!</button>
+    <p id="avatar_drawn">Your avatar is set! Continue to <a href="/">Log In</a>...</p>
+  <% } %>
+
+</body>
+</html>

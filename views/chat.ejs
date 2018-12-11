@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Draw N' Chat</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+	<link href="https://fonts.googleapis.com/css?family=Poor+Story" rel="stylesheet">
+	<style type="text/css">
+		* {
+			background-color: gainsboro;
+			font-family: 'Poor Story', cursive;
+			font-size: 22px;
+		}
+		h1 {
+			text-align: center;
+			font-size: 42px;
+		}
+		#username{
+			position: absolute;
+			right: 80px;
+			top: 20px;
+			margin: 0;
+		}
+		.avatar{
+			position: absolute;
+			right: 10px;
+			top: 10px;
+			margin: 5px;
+			width: 50px;
+			height: 50px;
+		}
+		.row{
+			display: flex;
+			margin: 0;
+		}
+		.column{
+			flex: 50%;
+		}
+		#chat{
+			height: 750px;
+			overflow: auto;
+		}
+		.chat_row{
+			width: 100%;
+		}
+		.my_avatar img{
+			float: right;
+			width: 50px;
+			height: 50px;
+		}
+		.my_msg img{
+			width: 250px;
+			height: 250px;			
+		}
+		#other_avatar img{
+			float: left;
+			width: 50px;
+			height: 50px;
+		}
+		#other_msg img{
+			width: 250px;
+			height: 250px;			
+		}
+		#pen{
+			float: right;
+			margin: 0;
+		}
+	    p.indicator{
+	    	margin: 0;
+	    	font-size: 18px;
+	    }
+	    #sketch{
+	    	float: right;
+			width: 550px;
+			height: 550px;
+			text-align: center;
+			margin: auto;
+	    }
+	    canvas{
+			position: relative;
+			top:25px;
+			margin: auto;
+	    }
+		button {
+			margin: 10px;
+			float: right;
+		    background-color: black; 
+		    border: none;
+		    border-radius: 12px;
+		    color: white;
+		    padding: 15px 32px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 22px;
+		}
+		button:hover {
+			background-color: dimgrey;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<script>
+	const socket = io();
+	let userid = <%= userid %>
+	let drawn = false;
+	// drawing stuff
+	let penTypeRadio;
+	let penAlphaSlider;
+	let penSizeSlider;
+	let penRSlider;
+	let penGSlider;
+	let penBSlider;
+
+	let penType = 'Line';// circle, square, spray
+	let penSize = 10;
+	let penAlpha = 255;
+	let penR = 0;
+	let penG = 0;
+	let penB = 0;
+
+	// p5
+	function setup(){
+		var canvas = createCanvas(500, 500);
+		canvas.parent('sketch');
+		canvas.mousePressed(userHasDrawn);
+		background(255);
+
+	    rectMode(CENTER);
+
+	    penTypeRadio = createRadio();
+	    penTypeRadio.option('Line');
+	    penTypeRadio.option('Square');
+	    penTypeRadio.option('Spray');
+	    penTypeRadio.parent('pen_type');
+
+	    penSizeSlider = createSlider(10, 200, 10, 5);
+	    penSizeSlider.parent('pen_size');
+
+	    penAlphaSlider = createSlider(5, 255, 255, 5);
+	    penAlphaSlider.parent('pen_alpha');
+
+	    penRSlider = createSlider(0, 255, 0, 0.1);
+	    penGSlider = createSlider(0, 255, 0, 0.1);
+	    penBSlider = createSlider(0, 255, 0, 0.1);
+	    penRSlider.parent('pen_color');
+	    penGSlider.parent('pen_color');
+	    penBSlider.parent('pen_color');
+	}
+	function draw(){
+	penType = penTypeRadio.value();
+	penSize = penSizeSlider.value();
+	penAlpha = penAlphaSlider.value();
+	penR = penRSlider.value();
+	penG = penGSlider.value();
+	penB = penBSlider.value();
+	docAlpha = map(penAlpha, 0, 255, 0, 1)
+	document.getElementById("sketch").style.backgroundColor = "rgba("+penR+", " + penG +", "+penB+", "+docAlpha+")";
+	if (mouseIsPressed){
+	  if (penType==='Line'){
+	    noFill();
+	    stroke(penR, penG, penB, penAlpha);
+	    strokeWeight(penSize)
+	    line(pmouseX, pmouseY, mouseX, mouseY)
+	  }
+	  else if (penType==='Square'){
+	    fill(penR, penG, penB, penAlpha);
+	    noStroke();
+	    rect(mouseX, mouseY, penSize, penSize);
+	  }
+	  else if (penType==='Spray'){
+	    fill(penR, penG, penB, penAlpha);
+	    noStroke();
+	    for(let i = 0;i<300;i++){
+	      let x1 = random(-penSize, penSize);
+	      let x2 = random(-penSize, penSize);
+	      let x3 = random(-penSize, penSize);
+	      x = (x1 + x2 + x3) / 3; // gaussian 
+	      let y1 = random(-penSize, penSize);
+	      let y2 = random(-penSize, penSize);
+	      let y3 = random(-penSize, penSize);
+	      y = (y1 + y2 + y3) / 3; // gaussian
+
+	      fill(penR, penG, penB, penAlpha);
+	      ellipse(mouseX+x, mouseY+y, 1, 1)
+	    }
+	  }
+	}
+	}
+	// press enter to send data
+	function keyReleased(){
+		if (keyCode===ENTER && drawn){
+			// save canvas into server when canvas is not empty
+			sendMyCanvas();
+		}
+		if (keyCode===SPACE){
+			penSize += 10;
+		}
+	}
+	function userHasDrawn(){
+		drawn = true;
+	}
+
+	// button click also send data when canvas is not empty
+	$(function () {
+		$("#send").click(function(){
+			if (drawn){
+				console.log('send');
+				sendCanvas();			
+			}
+		});	
+	});
+
+	function sendCanvas(){
+		let userCanvas = $('canvas')[0];
+		let canvasData = userCanvas.toDataURL('image/png');
+		socket.emit('send canvas', {userid: userid, username:null, avatar:null, message: canvasData});
+		// reset canvas
+		clear();
+		//setup();
+		drawn = false;
+	}
+
+	// socket
+	socket.on('send canvas', function(data) {
+		/*
+			<div class="chat_row">
+				<div class="other_avatar"></div>
+				<div class="other_msg"></div>				
+			</div>
+			<div class="chat_row">
+				<div class="my_msg"></div>
+				<div class="my_avatar"></div>
+			</div>
+		*/
+		// my msg
+		if (data.userid === userid){
+			let div = $("#chat").append("<div class='chat_row'></div>");
+
+			let msg = div.append("<img scr='"+data.message+"' class='my_msg'></img>");
+			
+			let avatar = div.append("<img scr='"+data.avatar+"' class='my_avatar'></img>");
+		}
+		// for every of others' msg
+		else{
+			let div = $("#chat").append("<div class='chat_row'></div>");
+
+			let avatar = div.append("<img scr='"+data.avatar+"' class='other_avatar'></img>");
+
+			let msg = div.append("<img scr='"+data.message+"' class='other_msg'></img>");
+			msg.src = data.message;
+		}
+	});	
+
+	// socket.emit('get chat', {chatData: null});
+	/*
+	socket.on('get chat', function(data) {
+		// getting our chat history & display
+		// loop throught data
+		for (let i=0; i<data.length; i++){
+			// for every of my msg
+			if (data[i].userid === userid){
+				let avatar = document.createElement('img');
+				avatar.src = data[i].avatar;
+				avatar.attr('class') = "avatar";
+				$("#my_avatar").append(avatar);
+
+				let msg = document.createElement('img');
+				msg.src = data[i].message;
+				msg.attr('class') = "msg";
+				$("#my_msg").append(msg);
+			}
+			// for every of others' msg
+			else{
+				let avatar = document.createElement('img');
+				avatar.src = data[i].avatar;
+				avatar.attr('class') = "avatar";
+				$("#other_avatar").append(avatar);
+
+				let msg = document.createElement('img');
+				msg.src = data[i].message;
+				msg.attr('class') = "msg";
+				$("#other_msg").append(msg);
+			}
+		}
+
+	});	
+	*/
+
+	
+	</script>  
+
+	<h1>Draw Chat!</h1>
+	<img src="<%= avatar %>" class="avatar">
+	<p id="username"><%= username %></p>
+
+	<div class="row">
+		<div class="column" id="chat">
+		</div>
+
+		<div class="column">
+			<div id="pen">
+				<div id="pen_type">
+					<p class="indicator">Pen Type</p>
+				</div>
+				<div id="pen_size">
+					<p class="indicator">Pen Size</p>
+				</div>
+				<div id="pen_alpha">
+					<p class="indicator">Alpha</p>
+				</div>
+				<div id="pen_color">
+					<p class="indicator">R, G, B</p>
+				</div>
+				<br>
+			</div>
+			<div id="sketch"></div>
+			<button id="send">Send</button>
+		</div>
+	</div>
+
+</body>
+</html>

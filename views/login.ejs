@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Draw N' Chat | Log In</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Poor+Story" rel="stylesheet">
+  <style type="text/css">
+    * {
+      background-color: gainsboro;
+      font-family: 'Poor Story', cursive;
+      font-size: 22px;
+    }
+    body{
+      width: 600px;
+      margin: 0 auto;
+    }
+    h1{
+      text-align: center;
+      font-size: 42px;
+    }
+    form{
+      margin: 5px auto;
+    }
+    input{
+      margin: 5px auto;
+      font-size: 18px;
+    }
+    p{
+      margin: 2px 0;
+    }
+    #submit{
+      background-color: black; 
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 5px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 22px;
+    }
+    #submit:hover {
+      background-color: dimgrey;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+	<H1>Log In to Draw N' Chat</H1>
+    <form action="/" method="post">
+      <p>Username</p>
+      <input type="text" name="username" placeholder=" Your Username"><br>
+      <p>Password</p>
+      <input type="password" name="password" placeholder=" Your Password"><br>
+      <input type="submit" id="submit">
+    </form>
+    <br>
+    <% if (error !== null){ %>
+    	<p><%= error %></p>
+    <% } %> 
+    <p>Haven't signed up? Go to <a href="/signup">Sign Up</a>...</p>
+</body>
+</html>

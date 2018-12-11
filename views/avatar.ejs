@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+</head>
+<script type="text/javascript">
+	const socket = io();
+	let drawn = false;
+
+	function setup(){
+		let canvas = createCanvas(500, 500);
+		canvas.parent('sketch');
+		canvas.mousePressed(userHasDrawn); // has to draw something on canvas!
+		background(255);		
+	}
+	function draw(){
+		noStroke();
+		fill(0);
+		if (mouseIsPressed){
+			ellipse(mouseX, mouseY, penSize, penSize);
+		}
+	}
+
+	// button click also send data when canvas is not empty
+	$(function () {
+		$("button#send").click(function(){
+			if (drawn){
+				console.log('send avatar');
+				sendAvatar();			
+			}
+		});	
+	});
+
+	function userHasDrawn(){
+		drawn = true;
+	}
+
+	function sendAvatar(){
+		let avatarCanvas = $('canvas')[0];
+		let avatarData = avatarCanvas.toDataURL('image/png'); // convert to an image src
+		socket.emit('send avatar', avatarData);
+	}
+
+	socket.on('send avatar', function(data) {
+		// change the canvas into image
+		// display success text
+		let avatarImg = document.createElement('img');
+		avatarImg.src = data;
+		$("#image").append(newImg);
+	});	
+</script>
+<body>
+	<!-- pen settings here -->
+	<div id="pen">
+		
+	</div>
+	<div id="sketch"></div>
+	<div id="image"></div>
+	<button id="send">Okay, I'm done!</button>
+
+
+</body>
+</html>

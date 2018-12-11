@@ -23,13 +23,13 @@
 			top: 20px;
 			margin: 0;
 		}
-		.avatar{
+		#myavatar{
+			width: 50px;
+			height: 50px;
 			position: absolute;
 			right: 10px;
 			top: 10px;
 			margin: 5px;
-			width: 50px;
-			height: 50px;
 		}
 		.row{
 			display: flex;
@@ -43,25 +43,29 @@
 			overflow: auto;
 		}
 		.chat_row{
-			width: 100%;
+			display: block;
 		}
-		.my_avatar img{
-			float: right;
+		.avatars{
 			width: 50px;
 			height: 50px;
+			position: relative;
+			display: inline-block;
+			left: 10px;
+			top: 10px;
 		}
-		.my_msg img{
+		.usernames{
+			position: relative;
+			left: 15px;
+			top: 0;
+			display: inline-block;
+		}
+		.msgs{
 			width: 250px;
-			height: 250px;			
-		}
-		#other_avatar img{
-			float: left;
-			width: 50px;
-			height: 50px;
-		}
-		#other_msg img{
-			width: 250px;
-			height: 250px;			
+			height: 250px;		
+			display: block;	
+			position: relative;;
+			left: 10px;
+			top: 0px;
 		}
 		#pen{
 			float: right;
@@ -220,39 +224,31 @@
 		socket.emit('send canvas', {userid: userid, username:null, avatar:null, message: canvasData});
 		// reset canvas
 		clear();
+		background(255);
 		//setup();
 		drawn = false;
 	}
 
 	// socket
 	socket.on('send canvas', function(data) {
-		/*
-			<div class="chat_row">
-				<div class="other_avatar"></div>
-				<div class="other_msg"></div>				
-			</div>
-			<div class="chat_row">
-				<div class="my_msg"></div>
-				<div class="my_avatar"></div>
-			</div>
-		*/
-		// my msg
-		if (data.userid === userid){
-			let div = $("#chat").append("<div class='chat_row'></div>");
+		let div = document.createElement('div');//.append("<div class='chat_row'></div>");
+		div.className = "chat_row";
+		$("#chat").append(div);
 
-			let msg = div.append("<img scr='"+data.message+"' class='my_msg'></img>");
-			
-			let avatar = div.append("<img scr='"+data.avatar+"' class='my_avatar'></img>");
-		}
-		// for every of others' msg
-		else{
-			let div = $("#chat").append("<div class='chat_row'></div>");
+		let avatar = document.createElement('img');
+		avatar.className = "avatars";
+		avatar.src = data.avatar;
+		div.append(avatar);
 
-			let avatar = div.append("<img scr='"+data.avatar+"' class='other_avatar'></img>");
+		let username = document.createElement('p');
+		username.className = "usernames";
+		username.appendChild(document.createTextNode(data.username));
+		div.append(username);
 
-			let msg = div.append("<img scr='"+data.message+"' class='other_msg'></img>");
-			msg.src = data.message;
-		}
+		let msg = document.createElement('img');
+		msg.className = "msgs"
+		msg.src = data.message;
+		div.append(msg);
 	});	
 
 	// socket.emit('get chat', {chatData: null});
@@ -294,12 +290,11 @@
 	</script>  
 
 	<h1>Draw Chat!</h1>
-	<img src="<%= avatar %>" class="avatar">
+	<img src="<%= avatar %>" id="myavatar">
 	<p id="username"><%= username %></p>
 
 	<div class="row">
-		<div class="column" id="chat">
-		</div>
+		<div class="column" id="chat"></div>
 
 		<div class="column">
 			<div id="pen">

@@ -125,6 +125,34 @@
 			background-color: dimgrey;
 			color: white;
 		}
+	    input[type=range] {
+	      -webkit-appearance: none;
+	      width: 150px;
+	      height: 10px;
+	      background: darkgrey;
+	      outline: none;
+	      opacity: 0.7;
+	    }
+
+	    input[type=range]:hover {
+	      opacity: 1;
+	    }
+
+	    input[type=range]::-webkit-slider-thumb {
+	      -webkit-appearance: none;
+	      appearance: none;
+	      width: 15px;
+	      height: 25px;
+	      background: black;
+	      cursor: pointer;
+	    }
+
+	    input[type=range]::-moz-range-thumb {
+	      width: 15px;
+	      height: 25px;
+	      background: black;
+	      cursor: pointer;
+	    }
 	</style>
 </head>
 <body>
@@ -140,7 +168,7 @@
 	let penGSlider;
 	let penBSlider;
 
-	let penType = 'Line';// circle, square, spray
+	let penType = 'Line ';// circle, square, spray
 	let penSize = 10;
 	let penAlpha = 255;
 	let penR = 0;
@@ -157,9 +185,9 @@
 	    rectMode(CENTER);
 
 	    penTypeRadio = createRadio();
-	    penTypeRadio.option('Line');
-	    penTypeRadio.option('Square');
-	    penTypeRadio.option('Spray');
+	    penTypeRadio.option('Line ');
+	    penTypeRadio.option('Square ');
+	    penTypeRadio.option('Spray ');
 	    penTypeRadio.parent('pen_type');
 
 	    penSizeSlider = createSlider(10, 200, 10, 5);
@@ -185,18 +213,18 @@
 	docAlpha = map(penAlpha, 0, 255, 0, 1)
 	document.getElementById("sketch").style.backgroundColor = "rgba("+penR+", " + penG +", "+penB+", "+docAlpha+")";
 	if (mouseIsPressed){
-	  if (penType==='Line'){
+	  if (penType==='Line '){
 	    noFill();
 	    stroke(penR, penG, penB, penAlpha);
 	    strokeWeight(penSize)
 	    line(pmouseX, pmouseY, mouseX, mouseY)
 	  }
-	  else if (penType==='Square'){
+	  else if (penType==='Square '){
 	    fill(penR, penG, penB, penAlpha);
 	    noStroke();
 	    rect(mouseX, mouseY, penSize, penSize);
 	  }
-	  else if (penType==='Spray'){
+	  else if (penType==='Spray '){
 	    fill(penR, penG, penB, penAlpha);
 	    noStroke();
 	    for(let i = 0;i<300;i++){
